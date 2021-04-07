@@ -1,0 +1,1 @@
+<img src="C:\Users\cheruixi.CORPDOM\Desktop\引进\陈瑞祥-身份证\正面.png">
