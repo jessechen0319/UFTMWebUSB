@@ -102,7 +102,7 @@ const ADB_PROTOCOL=1;
       let adb_protocol = this.device_.configuration.interfaces[0].alternates[0].interfaceProtocol;
       let adb_subclas = this.device_.configuration.interfaces[0].alternates[0].interfaceSubclass;
       let adb_class = this.device_.configuration.interfaces[0].alternates[0].interfaceClass;
-      if((ADB_PROTOCOL !== adb_protocol && ADB_PROTOCOL !== adb_protocol) || ADD_CLACSS!== adb_class || ADB_SUBCLASS !== adb_subclas){
+      if(ADD_CLACSS!== adb_class || ADB_SUBCLASS !== adb_subclas){
         document.getElementById('output').innerHTML='This device is not an Androd device';
         document.querySelector("#connect").style = "visibility: initial";
         return
