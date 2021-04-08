@@ -1,7 +1,6 @@
 <html>
   <head>
     <title>WebUSB Serial Sample Application</title>
-    <link rel="stylesheet" href="/public/stylesheets/style.css">
     <style>
       *{
         margin: 0;
@@ -13,6 +12,18 @@
       }
       #information,#submit{
         float: right;
+      }
+	  .btnStyle_disable{
+        outline:none;
+        width: 180px;
+        height: 50px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #fff;
+        background: lightgray;
+        border-color: gray;
+        text-shadow: 0 -1px 0 rgb(0 0 0 / 12%);
+        box-shadow: 0 2px 0 rgb(0 0 0 / 5%);
       }
       .btnStyle{
         outline:none;
@@ -197,7 +208,7 @@ window.onload = _ => {
   <button id="information" class="btnStyle">Device Information</button>
   <br><br><label for="title">Message Sender: </label> <br>
   <textarea id="editor" class="source"></textarea>
-  <br><button id="submit" class="btnStyle">Send</button>
+  <br><button id="submit" class="btnStyle_disable" disabled>Send</button>
   <br><br>
   <label for="title">Message Info: </label> </br>
   <textarea id="output" class="source"></textarea>
