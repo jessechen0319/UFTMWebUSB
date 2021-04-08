@@ -190,6 +190,8 @@ window.onload = _ => {
     serial.requestPort().then(selectedPort => {
       port = selectedPort;
       this.style = "visibility: hidden";
+	   document.getElementById('output').innerHTML='Device Connected'
+        document.querySelector("#connect").style = "visibility: initial";
       connect();
     });
   }
