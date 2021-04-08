@@ -1,13 +1,71 @@
 <html>
   <head>
     <title>WebUSB Serial Sample Application</title>
+    <link rel="stylesheet" href="/public/stylesheets/style.css">
+    <style>
+      *{
+        margin: 0;
+        padding: 0;
+      }
+      .contentWrapper{
+        width: 50%;
+        margin: 20px auto;
+      }
+      #information,#submit{
+        float: right;
+      }
+      .btnStyle{
+        outline:none;
+        width: 180px;
+        height: 50px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #fff;
+        background: #1890ff;
+        border-color: #1890ff;
+        text-shadow: 0 -1px 0 rgb(0 0 0 / 12%);
+        box-shadow: 0 2px 0 rgb(0 0 0 / 5%);
+      }
+      .btnStyle:hover{
+        color: #fff;
+        background: #40a9ff;
+        border-color: #40a9ff;
+      }
+      .btnStyle:active{
+        border: none;
+      }
+      .source{
+        width: 100%;
+        height: 200px;
+        margin-top: 10px;
+        padding: 12px 10px;
+        border-radius: 4px;
+        resize: none;
+        overflow-y: auto;
+        font-size: 18px;
+      }
+      .source:hover{
+        border-color: #40a9ff;
+      }
+      .source:focus {
+        border-color: #40a9ff;
+        border-right-width: 1px!important;
+        outline: 0;
+        box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
+      }
+      #submit{
+        margin-top: 20px;
+      }
+    </style>
   </head>
 
 
 <body>
-<script>
+<script >
 var serial = {};
-
+const ADD_CLACSS=255;
+const ADB_SUBCLASS=66;
+const ADB_PROTOCOL=1;
 (function() {
   'use strict';
 
@@ -29,10 +87,20 @@ var serial = {};
 
   serial.Port.prototype.connect = function() {
     let readLoop = () => {
-      console.log(this.device_.configuration.interfaces)
+      console.log(this.device_.configuration.interfaces[0].alternates[0])
+      let adb_protocol = this.device_.configuration.interfaces[0].alternates[0].interfaceProtocol;
+      let adb_subclas = this.device_.configuration.interfaces[0].alternates[0].interfaceSubclass;
+      let adb_class = this.device_.configuration.interfaces[0].alternates[0].interfaceClass;
+      if(ADB_PROTOCOL !== adb_protocol || ADD_CLACSS!== adb_class || ADB_SUBCLASS !== adb_subclas){
+        document.getElementById('output').innerHTML='This device is not an Androw device'
+        document.querySelector("#connect").style = "visibility: initial";
+        return
+      }else{
+        document.getElementById('output').innerHTML=''
+      }
       const {
         endpointNumber
-      } = this.device_.configuration.interfaces[0].alternate.endpoints[0]
+      } = this.device_.configuration.interfaces[0].alternates[0].endpoints[0]
  
       this.device_.transferIn(endpointNumber, 64).then(result => {
         this.onReceive(result.data);
@@ -45,10 +113,11 @@ var serial = {};
     return this.device_.open()
         .then(() => {
           if (this.device_.configuration === null) {
+            console.log(this.device_.selectConfiguration(),'-----')
             return this.device_.selectConfiguration(1);
           }
         })
-        .then(() => this.device_.claimInterface(0))
+        .then(() =>{console.log(this.device_.claimInterface(0),'=========='); this.device_.claimInterface(0)})
         .then(() => {
           readLoop();
         });
@@ -58,17 +127,17 @@ var serial = {};
     return this.device_.close();
   };
 
-  serial.Port.prototype.send = function(data,type) {
+  serial.Port.prototype.send = function(data) {
     console.log(this.device_.configuration)
     const {
       endpointNumber
     } = this.device_.configuration.interfaces[0].alternates[0].endpoints[1]
-    let str = this.device_.manufacturerName +'\r\n' +this.device_.productName+'\r\n'  +this.device_.serialNumber+'\r\n'  +this.device_.vendorId;
-    if(type === 'info'){
-      document.getElementById('output').innerHTML=str
-    } 
     return this.device_.transferOut(endpointNumber, data);
   };
+  serial.Port.prototype.info = function(){
+    let str = this.device_.manufacturerName +'\r\n' +this.device_.productName+'\r\n'  +this.device_.serialNumber+'\r\n'  +this.device_.vendorId;
+    document.getElementById('output').innerHTML=str
+  }
 })();
 
 let port;
@@ -88,7 +157,7 @@ function connect() {
   });
 }
 
-function send(string,type) {
+function send(string) {
   console.log("sending to serial:" + string.length);
   if (string.length === 0)
     return;
@@ -96,9 +165,14 @@ function send(string,type) {
 
   let view = new TextEncoder('utf-8').encode(string);
   if (port) {
-    port.send(view,type);
+    port.send(view);
   }
 };
+function getInfo(){
+  if(port){
+    port.info()
+  }
+}
 
 window.onload = _ => {
   document.querySelector("#connect").onclick = function() {
@@ -111,20 +185,22 @@ window.onload = _ => {
 
   document.querySelector("#submit").onclick = () => {
     let source = document.querySelector("#editor").value;
-    send(source,'send');
+    send(source);
   }
   document.querySelector('#information').onclick=()=>{
-    let source = document.querySelector("#editor").value;
-    send(source,'info')
+    getInfo()
   }
 }
 </script>
- <button id="connect" style="visibility: initial">Connect To WebUSB Device</button>
- <button id="information">Get Device Information</button>
- <br><br><label for="title">Sender: </label> <br>
- <textarea id="editor", rows="25" cols="80" id="source">WebUSB!</textarea>
- <br><button id="submit" disabled>Send</button>
- <br><br>
- <label for="title">Receiver: </label> </br>
- <textarea id="output", rows="25" cols="80" id="source"></textarea>
+<div class="contentWrapper">
+  <button id="connect" class="btnStyle" style="visibility: initial">Connect WebUSB Device</button>
+  <button id="information" class="btnStyle">Device Information</button>
+  <br><br><label for="title">Message Sender: </label> <br>
+  <textarea id="editor" class="source"></textarea>
+  <br><button id="submit" class="btnStyle">Send</button>
+  <br><br>
+  <label for="title">Message Info: </label> </br>
+  <textarea id="output" class="source"></textarea>
+</div>
+
 </body>
