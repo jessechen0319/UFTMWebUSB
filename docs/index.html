@@ -103,11 +103,11 @@ const ADB_PROTOCOL=1;
       let adb_subclas = this.device_.configuration.interfaces[0].alternates[0].interfaceSubclass;
       let adb_class = this.device_.configuration.interfaces[0].alternates[0].interfaceClass;
       if((ADB_PROTOCOL !== adb_protocol && ADB_PROTOCOL !== adb_protocol) || ADD_CLACSS!== adb_class || ADB_SUBCLASS !== adb_subclas){
-        document.getElementById('output').innerHTML='This device is not an Androd device'
+        document.getElementById('output').innerHTML='This device is not an Androd device';
         document.querySelector("#connect").style = "visibility: initial";
         return
       }else{
-        document.getElementById('output').innerHTML=''
+        document.getElementById('output').innerHTML='';
       }
       const {
         endpointNumber
@@ -124,7 +124,7 @@ const ADB_PROTOCOL=1;
     return this.device_.open()
         .then(() => {
           if (this.device_.configuration === null) {
-            console.log(this.device_.selectConfiguration(),'-----')
+            console.log(this.device_.selectConfiguration(),'-----');
             return this.device_.selectConfiguration(1);
           }
         })
@@ -190,9 +190,10 @@ window.onload = _ => {
     serial.requestPort().then(selectedPort => {
       port = selectedPort;
       this.style = "visibility: hidden";
-	   document.getElementById('output').innerHTML='Device Connected'
-        document.querySelector("#connect").style = "visibility: initial";
+	   
       connect();
+	  document.getElementById('output').innerHTML='Device Connected';
+      document.querySelector("#connect").style = "visibility: initial";
     });
   }
 
